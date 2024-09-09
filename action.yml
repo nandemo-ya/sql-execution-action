@@ -1,0 +1,33 @@
+name: "SQL Execution Action"
+description: "A custom action written in Go"
+runs:
+  using: "docker"
+  image: "Dockerfile"
+  args:
+    - "${{ inputs.command }}"
+    - "--engine=${{ inputs.engine }}"
+    - "--datasource=${{ inputs.datasource }}"
+    - "--sql-file=${{ inputs.sql-file }}"
+    - "--sql=${{ inputs.sql }}"
+
+inputs:
+  command:
+    description: 'The command to run the query. e.g. write or read.'
+    required: true
+  engine:
+    description: 'The relation database engine name, e.g. sqlite3(default), mysql, postgres, mssql, and oracle.'
+    required: false
+    default: 'sqlite3'
+  datasource:
+    description: 'The datasource string of the relational database. e.g. /path/to/sqlite.db, user:password@tcp(localhost:3306)/dbname'
+    required: true
+  sql-file:
+    description: 'The SQL config string in YAML format.'
+    required: false
+  sql:
+    description: 'The path of SQL config string file.'
+    required: false
+
+outputs:
+  query-result:
+    description: 'The result of the query'
