@@ -20,7 +20,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-database-
       - name: Execute create statement
-        uses: .
+        uses: ./
         with:
           command: write
           engine: sqlite3
@@ -35,7 +35,7 @@ jobs:
                   );
                 params: []
       - name: Execute insert statement
-        uses: .
+        uses: ./
         with:
           command: write
           engine: sqlite3
@@ -58,7 +58,7 @@ jobs:
                   - piyo
                   - 40
       - name: Execute select statement
-        uses: .
+        uses: ./
         id: execute_query
         with:
           command: read
