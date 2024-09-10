@@ -1,0 +1,76 @@
+name: Test on sqlite3
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Cache database file
+        uses: actions/cache@v4
+        with:
+          path: sqlite3.db
+          key: ${{ runner.os }}-database-
+          restore-keys: |
+            ${{ runner.os }}-database-
+      - name: Execute create statement
+        uses: ./
+        with:
+          command: write
+          engine: sqlite3
+          datasource: sqlite3.db
+          sql: |
+            queries:
+              - sql: |
+                  CREATE TABLE IF NOT EXISTS users (
+                      "id"   INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,        
+                      "name" TEXT,
+                      "age"  INTEGER
+                  );
+                params: []
+      - name: Execute insert statement
+        uses: ./
+        with:
+          command: write
+          engine: sqlite3
+          datasource: sqlite3.db
+          sql: |
+            queries:
+              - sql:
+                  INSERT INTO users (name, age) VALUES (?, ?);
+                params:
+                  - hoge
+                  - 20
+              - sql:
+                  INSERT INTO users (name, age) VALUES (?, ?);
+                params:
+                  - fuga
+                  - 30
+              - sql:
+                  INSERT INTO users (name, age) VALUES (?, ?);
+                params:
+                  - piyo
+                  - 40
+      - name: Execute select statement
+        uses: ./
+        id: execute_query
+        with:
+          command: read
+          engine: sqlite3
+          datasource: sqlite3.db
+          sql: |
+            query:
+              sql:
+                SELECT id, name, age FROM users WHERE name = ?;
+              params:
+                - fuga
+
+      - name: Show query result
+        run: |
+          echo "query result is: ${{ steps.execute_query.outputs.query-result }}"
