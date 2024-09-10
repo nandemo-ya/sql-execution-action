@@ -1,0 +1,91 @@
+name: Test on MySQL
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping --silent"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+        env:
+          MYSQL_ROOT_PASSWORD: root_password
+          MYSQL_DATABASE: test_db
+          MYSQL_USER: test_user
+          MYSQL_PASSWORD: test_password
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Wait for MySQL to be ready
+        run: |
+          while ! mysqladmin ping --host="127.0.0.1" --user="root" --password="root_password" --silent; do
+            echo "Waiting for MySQL..."
+            sleep 3
+          done
+      - name: Execute create statement
+        uses: ./
+        with:
+          command: write
+          engine: mysql
+          datasource: test_user:test_password@tcp(mysql:3306)/test_db
+          sql: |
+            queries:
+              - sql: |
+                  CREATE TABLE IF NOT EXISTS users (
+                      `id`   INT NOT NULL AUTO_INCREMENT,
+                      `name` TEXT,
+                      `age`  INT,
+                      PRIMARY KEY (`id`)
+                  );
+                params: []
+      - name: Execute insert statement
+        uses: ./
+        with:
+          command: write
+          engine: mysql
+          datasource: test_user:test_password@tcp(mysql:3306)/test_db
+          sql: |
+            queries:
+              - sql:
+                  INSERT INTO users (name, age) VALUES (?, ?);
+                params:
+                  - hoge
+                  - 20
+              - sql:
+                  INSERT INTO users (name, age) VALUES (?, ?);
+                params:
+                  - fuga
+                  - 30
+              - sql:
+                  INSERT INTO users (name, age) VALUES (?, ?);
+                params:
+                  - piyo
+                  - 40
+      - name: Execute select statement
+        uses: ./
+        id: execute_query
+        with:
+          command: read
+          engine: mysql
+          datasource: test_user:test_password@tcp(mysql:3306)/test_db
+          sql: |
+            query:
+              sql:
+                SELECT id, name, age FROM users WHERE name = ?;
+              params:
+                - fuga
+
+      - name: Show query result
+        run: |
+          echo "query result is: ${{ steps.execute_query.outputs.query-result }}"
