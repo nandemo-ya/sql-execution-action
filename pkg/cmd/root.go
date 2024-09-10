@@ -24,8 +24,8 @@ func CreateRoot() *cobra.Command {
 	rootCmd.PersistentFlags().String("sql-file", "", "The path of SQL config string file.")
 	rootCmd.MarkPersistentFlagRequired("datasource")
 
-	rootCmd.AddCommand(ReadCmd)
-	rootCmd.AddCommand(WriteCmd)
+	rootCmd.AddCommand(readCommand())
+	rootCmd.AddCommand(writeCommand())
 	return rootCmd
 }
 

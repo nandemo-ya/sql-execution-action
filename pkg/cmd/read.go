@@ -15,10 +15,12 @@ import (
 	"github.com/nandemo-ya/sql-execution-action/pkg/config"
 )
 
-var ReadCmd = &cobra.Command{
-	Use:   "read",
-	Short: "Send select type query to the database",
-	RunE:  cli.WithContext(runSelect),
+func readCommand() *cobra.Command {
+	return &cobra.Command{
+		Use:   "read",
+		Short: "Send select type query to the database",
+		RunE:  cli.WithContext(runSelect),
+	}
 }
 
 func runSelect(ctx context.Context, cmd *cobra.Command) error {

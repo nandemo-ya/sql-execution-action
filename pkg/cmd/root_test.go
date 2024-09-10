@@ -49,6 +49,9 @@ query:
 )
 
 func TestBuildArgs(t *testing.T) {
+	output := new(bytes.Buffer)
+	stdErr := new(bytes.Buffer)
+
 	dbFile, err := os.CreateTemp("", "test.db_")
 	if err != nil {
 		t.Fatal(err)
@@ -56,8 +59,12 @@ func TestBuildArgs(t *testing.T) {
 	defer os.Remove(dbFile.Name())
 
 	rootCmd := CreateRoot()
-	rootCmd.AddCommand(WriteCmd)
-	rootCmd.AddCommand(ReadCmd)
+	writeCmd := writeCommand()
+
+	rootCmd.SetOut(output)
+	rootCmd.SetErr(stdErr)
+	rootCmd.AddCommand(writeCmd)
+	rootCmd.AddCommand(readCommand())
 	rootCmd.SetArgs([]string{
 		"write",
 		"--engine=sqlite3",
@@ -72,17 +79,17 @@ func TestBuildArgs(t *testing.T) {
 		sqlPayload: []byte(testCreateConfig),
 	}
 
-	actual, err := buildArgs(WriteCmd)
+	actual, err := buildArgs(rootCmd)
 	assert.NoError(t, err)
 	assert.Equal(t, expected, actual)
 }
 
-func TestUpdateCommand_NoArgs(t *testing.T) {
+func TestWriteCommand_NoArgs(t *testing.T) {
 	output := new(bytes.Buffer)
 
 	rootCmd := CreateRoot()
 	rootCmd.SetOut(output)
-	rootCmd.AddCommand(WriteCmd)
+	rootCmd.AddCommand(writeCommand())
 
 	rootCmd.SetArgs([]string{"write"})
 	err := rootCmd.Execute()
@@ -95,7 +102,7 @@ func TestSelectCommand_NoArgs(t *testing.T) {
 
 	rootCmd := CreateRoot()
 	rootCmd.SetOut(output)
-	rootCmd.AddCommand(WriteCmd)
+	rootCmd.AddCommand(readCommand())
 
 	rootCmd.SetArgs([]string{"read"})
 	err := rootCmd.Execute()
@@ -123,8 +130,8 @@ func TestAllCommand_WithArgs(t *testing.T) {
 	rootCmd := CreateRoot()
 	rootCmd.SetOut(stdOut)
 	rootCmd.SetErr(stdErr)
-	rootCmd.AddCommand(WriteCmd)
-	rootCmd.AddCommand(ReadCmd)
+	rootCmd.AddCommand(writeCommand())
+	rootCmd.AddCommand(readCommand())
 
 	// The section of creating a table
 	rootCmd.SetArgs([]string{

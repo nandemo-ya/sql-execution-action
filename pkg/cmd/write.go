@@ -12,13 +12,15 @@ import (
 	"github.com/nandemo-ya/sql-execution-action/pkg/config"
 )
 
-var WriteCmd = &cobra.Command{
-	Use:   "write",
-	Short: "Send update type queries to the database",
-	RunE:  cli.WithContext(runUpdate),
+func writeCommand() *cobra.Command {
+	return &cobra.Command{
+		Use:   "write",
+		Short: "Send update type queries to the database",
+		RunE:  cli.WithContext(runWrite),
+	}
 }
 
-func runUpdate(ctx context.Context, cmd *cobra.Command) error {
+func runWrite(ctx context.Context, cmd *cobra.Command) error {
 	args, err := buildArgs(cmd)
 	if err != nil {
 		return err
