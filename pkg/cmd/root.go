@@ -7,7 +7,6 @@ import (
 
 	_ "github.com/denisenkom/go-mssqldb"
 	_ "github.com/go-sql-driver/mysql"
-	_ "github.com/godror/godror"
 	_ "github.com/lib/pq"
 	_ "github.com/mattn/go-sqlite3"
 
@@ -18,7 +17,7 @@ func CreateRoot() *cobra.Command {
 	rootCmd := &cobra.Command{
 		Use: "sql-execution-action",
 	}
-	rootCmd.PersistentFlags().String("engine", "sqlite3", "The relation database engine name, e.g. sqlite3(default), mysql, postgres, mssql, and oracle.")
+	rootCmd.PersistentFlags().String("engine", "sqlite3", "The relation database engine name, e.g. sqlite3(default), mysql, postgres, and mssql.")
 	rootCmd.PersistentFlags().String("datasource", "", "The datasource string of the relational database. e.g. /path/to/sqlite.db, user:password@tcp(localhost:3306)/dbname")
 	rootCmd.PersistentFlags().String("sql", "", "The SQL config string in YAML format.")
 	rootCmd.PersistentFlags().String("sql-file", "", "The path of SQL config string file.")

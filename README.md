@@ -8,7 +8,7 @@ This action is designed to make it easy to run SQL on the GitHub Actions runner.
 | name | description | required | default |
 | --- | --- | --- | --- |
 | `command` | <p>The command to run the query. e.g. write or read.</p> | `true` | `""` |
-| `engine` | <p>The relation database engine name, e.g. sqlite3(default), mysql, postgres, mssql, and oracle.</p> | `false` | `sqlite3` |
+| `engine` | <p>The relation database engine name, e.g. sqlite3(default), mysql, postgres, and mssql.</p> | `false` | `sqlite3` |
 | `datasource` | <p>The datasource string of the relational database. e.g. /path/to/sqlite.db, user:password@tcp(localhost:3306)/dbname</p> | `true` | `""` |
 | `sql-file` | <p>The SQL config string in YAML format.</p> | `false` | `""` |
 | `sql` | <p>The path of SQL config string file.</p> | `false` | `""` |
@@ -41,7 +41,7 @@ This action is a `docker` action.
     # Default: ""
 
     engine:
-    # The relation database engine name, e.g. sqlite3(default), mysql, postgres, mssql, and oracle.
+    # The relation database engine name, e.g. sqlite3(default), mysql, postgres, and mssql.
     #
     # Required: false
     # Default: sqlite3
