@@ -30,7 +30,7 @@ inputs:
 
 outputs:
   query-result:
-    description: 'The result of the query'
+    description: 'JSON array of query results.'
 
 branding:
   icon: 'database'
