@@ -19,7 +19,7 @@ This action is designed to make it easy to run SQL on the GitHub Actions runner.
 
 | name | description |
 | --- | --- |
-| `query-result` | <p>The result of the query</p> |
+| `query-result` | <p>JSON array of query results.</p> |
 <!-- action-docs-outputs source="action.yml" -->
 
 <!-- action-docs-runs action="action.yml" -->
