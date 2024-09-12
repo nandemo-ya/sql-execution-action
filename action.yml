@@ -1,5 +1,5 @@
 name: "SQL Execution Action"
-description: "A custom action written in Go"
+description: "An action to easily execute SQL queries in the workflow"
 runs:
   using: "docker"
   image: "Dockerfile"
