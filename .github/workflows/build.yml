@@ -53,5 +53,33 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           push: true
+          file: ./Dockerfile.build
           platforms: linux/amd64,linux/arm64
           tags: ghcr.io/${{ github.repository }}:${{ env.IMAGE_VERSION }}
+
+  trigger-tag:
+    needs: push
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v45.0.1
+      - name: Check for file changes
+        run: |
+          echo "Changed files: ${{ steps.changed-files.outputs.modified_files }}"
+          if echo "${{ steps.changed-files.outputs.modified_files }}" | grep -q 'Dockerfile'; then
+              echo "file_changed=true" >> $GITHUB_ENV
+          else
+              echo "file_changed=false" >> $GITHUB_ENV
+          fi
+      - name: Create and push tag
+        if: ${{ env.file_changed }} == 'true'
+        run: |
+          NEW_TAG=$(cat Dockerfile | sed 's/FROM ghcr.io\/nandemo-ya\/sql-execution-action://g')
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git tag $NEW_TAG
+          git push origin $NEW_TAG
