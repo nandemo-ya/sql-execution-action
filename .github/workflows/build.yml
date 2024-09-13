@@ -78,7 +78,7 @@ jobs:
               echo "file_changed=false" >> $GITHUB_ENV
           fi
       - name: Create and push tag
-        if: ${{ env.file_changed }} == 'true'
+        if: env.file_changed == 'true'
         run: |
           NEW_TAG=$(cat Dockerfile | sed 's/FROM ghcr.io\/nandemo-ya\/sql-execution-action://g')
           git config user.name "GitHub Actions"
