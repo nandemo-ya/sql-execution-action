@@ -33,6 +33,8 @@ jobs:
             echo "Waiting for MySQL..."
             sleep 3
           done
+      - name: Overwrite Dockerfile for build and run
+        run: cp -R Dockerfile.build Dockerfile
       - name: Execute create statement
         uses: ./
         with:
