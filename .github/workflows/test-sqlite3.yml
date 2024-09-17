@@ -19,6 +19,8 @@ jobs:
           key: ${{ runner.os }}-database-
           restore-keys: |
             ${{ runner.os }}-database-
+      - name: Overwrite Dockerfile for build and run
+        run: cp -R Dockerfile.build Dockerfile
       - name: Execute create statement
         uses: ./
         with:
