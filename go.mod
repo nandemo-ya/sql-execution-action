@@ -1,6 +1,6 @@
 module github.com/nandemo-ya/sql-execution-action
 
-go 1.23.0
+go 1.24.3
 
 require (
 	github.com/denisenkom/go-mssqldb v0.12.3
