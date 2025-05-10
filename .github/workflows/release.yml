@@ -26,6 +26,15 @@ jobs:
             echo "Invalid version format. Please use semantic versioning (e.g., 1.0.0)"
             exit 1
           fi
+          
+      - name: Update Dockerfile version
+        run: |
+          sed -i "s|FROM ghcr.io/nandemo-ya/sql-execution-action:.*|FROM ghcr.io/nandemo-ya/sql-execution-action:v${{ github.event.inputs.version }}|" Dockerfile
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add Dockerfile
+          git commit -m "chore: update Dockerfile to version v${{ github.event.inputs.version }}"
+          git push origin main
 
       - name: Create and push tag
         run: |
