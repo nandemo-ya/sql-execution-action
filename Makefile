@@ -7,3 +7,11 @@ update-credits:
 update-docs:
 	@docker image build -t sql-execution-action-docs -f tools/action-docs/Dockerfile .
 	@docker container run -v .:/app -it --rm sql-execution-action-docs --update-readme
+
+.PHONY: test
+test:
+	@go test -tags=test ./...
+
+.PHONY: test-with-duckdb
+test-with-duckdb:
+	@go test ./...

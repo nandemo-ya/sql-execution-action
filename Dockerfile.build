@@ -2,13 +2,47 @@ FROM --platform=$BUILDPLATFORM golang:1.24.3 AS builder
 
 ARG TARGETARCH TARGETOS
 WORKDIR /go/src/github.com/nandemo-ya/sql-execution-action
+
+# Install Arrow C++ and DuckDB dependencies
+RUN apt-get update && apt-get install -y \
+    wget \
+    lsb-release \
+    gnupg \
+    build-essential \
+    unzip \
+    && wget -O - https://apache.jfrog.io/artifactory/arrow/$(lsb_release --id --short | tr 'A-Z' 'a-z')/apache-arrow-apt-source-latest-$(lsb_release --codename --short).deb > /tmp/apache-arrow-apt-source-latest.deb \
+    && apt-get install -y /tmp/apache-arrow-apt-source-latest.deb \
+    && apt-get update \
+    && apt-get install -y \
+    libarrow-dev \
+    libarrow-dataset-dev \
+    libarrow-acero-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Download and install DuckDB library for the target architecture
+RUN mkdir -p /tmp/duckdb && \
+    cd /tmp/duckdb && \
+    if [ "${TARGETARCH}" = "arm64" ]; then \
+        wget https://github.com/duckdb/duckdb/releases/download/v0.10.1/libduckdb-linux-aarch64.zip; \
+    else \
+        wget https://github.com/duckdb/duckdb/releases/download/v0.10.1/libduckdb-linux-amd64.zip; \
+    fi && \
+    unzip libduckdb-*.zip && \
+    cp libduckdb.so /usr/lib/ && \
+    ln -s /usr/lib/libduckdb.so /usr/lib/libduckdb.so.0 && \
+    ldconfig && \
+    cd / && \
+    rm -rf /tmp/duckdb
+
 COPY . .
 
 RUN go mod download
 RUN go mod vendor
 RUN GO111MODULE=on GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -o ./bin/sql-execution-action -mod=vendor main.go
 
-FROM gcr.io/distroless/base-debian12:latest
+FROM gcr.io/distroless/cc-debian12:latest
 COPY --from=builder /go/src/github.com/nandemo-ya/sql-execution-action/bin/sql-execution-action /usr/local/bin/
+COPY --from=builder /usr/lib/libduckdb.so /usr/lib/
+COPY --from=builder /usr/lib/libduckdb.so.0 /usr/lib/
 
 ENTRYPOINT ["sql-execution-action"]
