@@ -15,7 +15,7 @@ inputs:
     description: 'The command to run the query. e.g. write or read.'
     required: true
   engine:
-    description: 'The relation database engine name, e.g. sqlite3(default), mysql, postgres, and mssql.'
+    description: 'The relation database engine name, e.g. sqlite3(default), mysql, postgres, mssql, and duckdb.'
     required: false
     default: 'sqlite3'
   datasource:
