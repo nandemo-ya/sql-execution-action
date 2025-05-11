@@ -9,7 +9,8 @@ import (
 )
 
 const (
-	testCreateConfig = `
+	// SQLite specific test configs
+	testCreateConfigSQLite = `
 queries:
 - sql: |
     CREATE TABLE IF NOT EXISTS users (
@@ -19,7 +20,7 @@ queries:
     );
   params: []
 `
-	testInsertConfig = `
+	testInsertConfigSQLite = `
 queries:
 - sql:
     INSERT INTO users (name, age) VALUES (?, ?);
@@ -38,6 +39,40 @@ queries:
     - 40
 `
 
+	// DuckDB specific test configs
+	testCreateConfigDuckDB = `
+queries:
+- sql: |
+    CREATE TABLE IF NOT EXISTS users (
+        id INTEGER PRIMARY KEY,
+        name VARCHAR,
+        age INTEGER
+    );
+  params: []
+`
+	testInsertConfigDuckDB = `
+queries:
+- sql:
+    INSERT INTO users (id, name, age) VALUES (?, ?, ?);
+  params:
+    - 1
+    - hoge
+    - 20
+- sql:
+    INSERT INTO users (id, name, age) VALUES (?, ?, ?);
+  params:
+    - 2
+    - fuga
+    - 30
+- sql:
+    INSERT INTO users (id, name, age) VALUES (?, ?, ?);
+  params:
+    - 3
+    - piyo
+    - 40
+`
+
+	// Common test configs
 	testSelectConfig = `
 query:
   sql:
@@ -46,6 +81,10 @@ query:
 `
 
 	testQueryResult = `query-result=[{"age":20,"id":1,"name":"hoge"},{"age":30,"id":2,"name":"fuga"},{"age":40,"id":3,"name":"piyo"}]`
+
+	// For backward compatibility
+	testCreateConfig = testCreateConfigSQLite
+	testInsertConfig = testInsertConfigSQLite
 )
 
 func TestBuildArgs(t *testing.T) {

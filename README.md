@@ -283,6 +283,92 @@ jobs:
 
 This action resolves the MySQL database by its service name because the sql-execution-action is executed in the container.
 
+### DuckDB
+
+DuckDB can be used as an in-memory analytical database. Below is an example of using DuckDB:
+
+```yaml
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Execute create statement
+        uses: ./
+        with:
+          command: write
+          engine: duckdb
+          datasource: test.duckdb
+          sql: |
+            queries:
+              - sql: |
+                  CREATE TABLE IF NOT EXISTS users (
+                      id INTEGER PRIMARY KEY,
+                      name VARCHAR,
+                      age INTEGER
+                  );
+                params: []
+      - name: Execute insert statement
+        uses: ./
+        with:
+          command: write
+          engine: duckdb
+          datasource: test.duckdb
+          sql: |
+            queries:
+              - sql:
+                  INSERT INTO users (id, name, age) VALUES (?, ?, ?);
+                params:
+                  - 1
+                  - hoge
+                  - 20
+              - sql:
+                  INSERT INTO users (id, name, age) VALUES (?, ?, ?);
+                params:
+                  - 2
+                  - fuga
+                  - 30
+              - sql:
+                  INSERT INTO users (id, name, age) VALUES (?, ?, ?);
+                params:
+                  - 3
+                  - piyo
+                  - 40
+      - name: Execute select statement
+        uses: ./
+        id: execute_query
+        with:
+          command: read
+          engine: duckdb
+          datasource: test.duckdb
+          sql: |
+            query:
+              sql:
+                SELECT id, name, age FROM users WHERE name = ?;
+              params:
+                - fuga
+
+      - name: Show query result
+        run: |
+          echo "query result is: ${{ steps.execute_query.outputs.query-result }}"
+```
+
+DuckDB can be used both as a file-based database and as an in-memory database by specifying `:memory:` as the datasource.
+
+#### DuckDB Dependencies
+
+Please note that the DuckDB driver has additional dependencies that need to be considered:
+
+- **Apache Arrow C++ Libraries**: The DuckDB Go driver depends on Apache Arrow C++ libraries. These libraries are automatically installed in the Docker container used by this action.
+
+- **Local Development**: If you want to build or test this action locally with DuckDB support, you need to install Apache Arrow C++ libraries:
+  - On Ubuntu/Debian: `apt-get install libarrow-dev libarrow-dataset-dev libarrow-acero-dev`
+  - On macOS: `brew install apache-arrow apache-arrow-glib`
+
+- **CI/CD Environment**: The GitHub Actions workflow includes all necessary dependencies for DuckDB in the Docker container.
+
+- **Building Without DuckDB**: If you don't need DuckDB support, you can build without CGO by setting `CGO_ENABLED=0`.
 
 ## License
 
